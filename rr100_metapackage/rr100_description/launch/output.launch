@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<launch>
+
+  <arg name="rslidar_enabled" default="false"/>
+  <arg name="realsense_enabled" default="false"/>
+  <arg name="gps_enabled" default="false"/>
+  <arg name="output" default="rr100.urdf"/>
+
+  <param name="robot_description" command="$(find xacro)/xacro '$(find rr100_description)/urdf/rr100.urdf.xacro'
+    rslidar_enabled:=$(arg rslidar_enabled)
+    realsense_enabled:=$(arg realsense_enabled)
+    gps_enabled:=$(arg gps_enabled) -o $(arg output)
+    " />
+</launch>

@@ -1,0 +1,16 @@
+<launch>
+  <arg name="laserscan_topic" default="/rslidar_laserscan"
+    doc="The topic in which the LiDAR laserscan data is published" />
+  <arg name="localization_only" default="false" />
+  <arg name="map_resolution" default="0.05" doc="Map gridcell resolution" />
+  <arg name="map_path" default="" doc="Map file path" />
+
+  <node pkg="slam_toolbox" type="async_slam_toolbox_node" name="slam_toolbox" output="screen">
+    <rosparam command="load" file="$(find rr100_slam)/config/mapper_params_online_async.yaml" />
+    
+    <param name="mode" value="localization" if="$(arg localization_only)" />
+    <param name="map_file_name" value="$(arg map_path)"/>
+    <param name="scan_topic" value="$(arg laserscan_topic)" />
+    <param name="resolution" value="$(arg map_resolution)" />
+  </node>
+</launch>

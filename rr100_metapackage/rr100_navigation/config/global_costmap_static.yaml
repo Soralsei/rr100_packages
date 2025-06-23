@@ -1,0 +1,11 @@
+global_frame: map
+rolling_window: False
+track_unknown_space: true
+
+publish_frequency: 3.0
+update_frequency: 4.0
+
+plugins:
+  - { name: static_layer, type: "costmap_2d::StaticLayer" }
+  - { name: 3d_obstacle_layer,  type: "spatio_temporal_voxel_layer/SpatioTemporalVoxelLayer"}
+  - { name: inflation_layer, type: "costmap_2d::InflationLayer" }

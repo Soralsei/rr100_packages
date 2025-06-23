@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="config_file" default="$(find rr100_rl)/config/controller_sim.yaml" />
+
+  <node name="rl_controller" pkg="rr100_rl" type="rl_controller_bridge_node" output="screen">
+    <rosparam command="load" file="$(arg config_file)" subst_value="true" />
+  </node>
+</launch>

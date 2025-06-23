@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<launch>
+
+  <arg name="joy_device" default="/dev/input/js1"/>
+  <include file="$(find teleop_twist_joy)/launch/teleop.launch">
+    <arg name="config_filepath" value="$(find rr100_joy)/config/xbox.config.yaml" />
+    <arg name="joy_dev" value="$(arg joy_device)" />
+  </include>
+
+</launch>

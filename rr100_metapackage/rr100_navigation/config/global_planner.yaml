@@ -1,0 +1,7 @@
+GlobalPlanner:
+  allow_unknown: true
+  cost_factor: 0.55
+  neutral_cost: 50
+  lethal_cost: 253
+  orientation_mode: 2
+  orientation_window_size: 3

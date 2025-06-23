@@ -1,0 +1,14 @@
+<launch>
+    <arg name="odom_in" default="/odom" />
+    <arg name="twist_in" default="/cmd_vel" />
+
+    <arg name="twist_out" default="corrected_cmd_vel" />
+
+    <node name="drive_amp_node" type="drive_amp.py" pkg="rr100_drive_amp" output="screen">
+        <rosparam file="$(find rr100_drive_amp)/config/drive_amp_params.yaml" command="load"/>
+
+        <remap from="twist_in" to="$(arg twist_in)" />
+        <remap from="odom_in" to="$(arg odom_in)" />
+        <remap from="corrected_cmd_vel" to="$(arg twist_out)"/>
+    </node>
+</launch>

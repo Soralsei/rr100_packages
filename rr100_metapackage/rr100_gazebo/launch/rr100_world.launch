@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+
+
+<launch>
+
+  <arg name="realsense_enabled" default="true" doc="Enable the intel realsense camera of the RR100"/>
+  <arg name="gps_enabled" default="true" doc="Enable the GPS module of the RR100"/>
+  <arg name="rslidar_enabled" default="true" doc="Enable the Robosense LiDAR of the RR100"/>
+
+  <arg name="realsense_laserscan" default="false" doc="Convert realsense point cloud to laser scan" />
+
+  <arg name="debug" default="false" />
+  <arg name="verbose" default="true" />
+  <arg name="use_gui" default="true" doc="Launch with the gazebo GUI"/>
+  <arg name="world_name" default="$(find rr100_gazebo)/worlds/gr_playpen.world"/>
+
+  <include file="$(find rr100_gazebo)/launch/world.launch">
+    <arg name="world_name" default="$(arg world_name)"/>
+
+    <arg name="use_gui" value="$(arg use_gui)"/>
+    <arg name="debug" value="$(arg debug)" />
+    <arg name="verbose" value="$(arg verbose)" />
+  </include>
+
+  <include file="$(find rr100_gazebo)/launch/spawn_rr100.launch">
+    <arg name="realsense_enabled" value="$(arg realsense_enabled)" />
+    <arg name="gps_enabled" value="$(arg gps_enabled)" />
+    <arg name="rslidar_enabled" value="$(arg rslidar_enabled)" />
+    <arg name="realsense_laserscan" value="$(arg realsense_laserscan)" />
+  </include>
+
+</launch>

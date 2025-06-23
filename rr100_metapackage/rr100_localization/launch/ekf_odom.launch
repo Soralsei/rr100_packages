@@ -1,0 +1,12 @@
+<launch>
+  <arg name="imu_topic" default="imu/data" doc="The topic in which the IMU data is published" />
+  <arg name="odom_topic" default="/rr100_steering_controller/odom"
+    doc="The topic in which the robot's odometry data is published" />
+
+  <node pkg="robot_localization" type="ekf_localization_node" name="ekf_se_odom" clear_params="true">
+    <rosparam command="load" file="$(find rr100_localization)/config/ekf_odom.yaml" />
+
+    <remap from="odom" to="$(arg odom_topic)" />
+    <remap from="imu/data" to="$(arg imu_topic)" />
+  </node>
+</launch>

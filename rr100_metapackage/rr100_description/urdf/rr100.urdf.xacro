@@ -1,0 +1,134 @@
+<?xml version="1.0"?>
+
+
+<robot name="rr100" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:arg name="rslidar_enabled" default="true" />
+  <xacro:arg name="gpu" default="true"/>
+  <xacro:arg name="realsense_enabled" default="true" />
+  <xacro:arg name="gps_enabled" default="true" />
+  
+
+  <!-- Included URDF/XACRO Files -->
+  <xacro:include filename="$(find rr100_description)/urdf/chassis_rr100.urdf.xacro" />
+  <xacro:include filename="$(find rr100_description)/urdf/wheel_steered.urdf.xacro" />
+
+  <xacro:property name="M_PI" value="3.14159"/>
+
+  <!-- Base Size -->
+  <xacro:property name="base_x_size" value="0.86" />
+  <xacro:property name="base_y_size" value="0.280" />
+  <xacro:property name="base_z_size" value="0.4215" />
+
+
+  <!-- Wheel Mounting Positions -->
+  <xacro:property name="ground_clearance" value="0.11" />
+  <xacro:property name="wheel_x_offset" value="0.0" />
+  <xacro:property name="wheel_y_offset" value="0.0" />
+
+  <xacro:property name="wheelbase" value="0.500" />
+  <xacro:property name="track" value="0.600" />
+
+  <xacro:chassis/>
+
+  <!-- Wheel macros -->
+  <xacro:wheel_steered wheel_prefix="front_left" parent_link="base_link" wheel_origin_y="${wheel_y_offset}" left_right="-1">
+    <origin xyz="${wheelbase/2+wheel_x_offset} ${track/2-wheel_y_offset} ${-base_z_size/2 + wheel_radius - ground_clearance}" rpy="0 0 0" />
+  </xacro:wheel_steered>
+  <xacro:wheel_steered wheel_prefix="front_right" parent_link="base_link" wheel_origin_y="${-wheel_y_offset}" left_right="1">
+    <origin xyz="${wheelbase/2+wheel_x_offset} ${-track/2+wheel_y_offset} ${-base_z_size/2 + wheel_radius - ground_clearance}" rpy="0 0 0" />
+  </xacro:wheel_steered>
+  <xacro:wheel_steered wheel_prefix="rear_left" parent_link="base_link" wheel_origin_y="${wheel_y_offset}" left_right="-1">
+    <origin xyz="${-wheelbase/2+wheel_x_offset} ${track/2-wheel_y_offset} ${-base_z_size/2 + wheel_radius - ground_clearance}" rpy="0 0 0" />
+  </xacro:wheel_steered>
+  <xacro:wheel_steered wheel_prefix="rear_right" parent_link="base_link" wheel_origin_y="${-wheel_y_offset}" left_right="1">
+    <origin xyz="${-wheelbase/2+wheel_x_offset} ${-track/2+wheel_y_offset} ${-base_z_size/2 + wheel_radius - ground_clearance}" rpy="0 0 0" />
+  </xacro:wheel_steered>
+
+
+  <!-- IMU Link is the standard mounting position for the UM6 IMU.-->
+  <!-- Can be modified with environment variables in /etc/ros/setup.bash -->
+<!--   <link name="imu_link"/>
+  <joint name="imu_joint" type="fixed">
+    <origin xyz="0.19 0 0.149" rpy="0 0 3.14159" />
+    <parent link="base_link" />
+    <child link="imu_link" />
+  </joint>
+  <gazebo reference="imu_link">
+  </gazebo> -->
+
+  <link name="imu_sim_link"/>
+  <joint name="imu_sim_joint" type="fixed">
+    <origin xyz="0.19 0 0.149" rpy="0 0 ${M_PI/2}" />
+    <parent link="base_link" />
+    <child link="imu_sim_link" />
+  </joint>
+  <gazebo reference="imu_sim_link">
+  </gazebo>
+
+  <xacro:property name="gpu" value="$(arg gpu)" />
+  <xacro:if value="$(arg rslidar_enabled)">
+
+    <xacro:include filename="$(find robosense_description)/urdf/RS-16.urdf.xacro"/>
+    <xacro:RS-16 parent="base_link" name="rslidar" topic="/rslidar_points" hz="20" samples="2625" gpu="${gpu}">
+        <origin xyz="0 0 0.416" rpy="0.0 0.0 0.0" />
+    </xacro:RS-16>
+  </xacro:if>
+
+  <xacro:if value="$(arg realsense_enabled)">
+    <xacro:include filename="$(find realsense2_description)/urdf/realsense-d435.macro.xacro"/>
+    <xacro:realsense-d435 prefix="" child="camera_link" parent="base_link">
+        <origin xyz="0.5 0 0.08" rpy="0 0 0" />   
+    </xacro:realsense-d435>
+  </xacro:if>
+
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <legacyModeNS>true</legacyModeNS>
+    </plugin>
+  </gazebo>
+
+  <gazebo>
+    <plugin name="imu_controller" filename="libhector_gazebo_ros_imu.so">
+      <updateRate>50.0</updateRate>
+      <bodyName>base_link</bodyName>
+      <frameId>imu_sim_link</frameId>
+      <topicName>imu7/data</topicName>
+      <gaussianNoise>0.0334</gaussianNoise> <!-- libgazebo_ros_imu -->
+      <accelDrift>0.02 0.02 0.02</accelDrift>
+      <accelGaussianNoise>0.02 0.02 0.02</accelGaussianNoise>
+      <rateDrift>0.00 0.00 0.00</rateDrift>
+      <rateGaussianNoise>0.02 0.02 0.02</rateGaussianNoise>
+      <headingDrift>1.0</headingDrift>
+      <headingGaussianNoise>1.0</headingGaussianNoise>
+      <yawOffset>1.57079632679</yawOffset>
+      <yawDrift>0.02</yawDrift>
+      <yawGaussianNoise>0.009</yawGaussianNoise>
+    </plugin>
+  </gazebo>
+
+  <xacro:if value="$(arg gps_enabled)">
+    <gazebo>
+      <plugin name="gps_controller" filename="libhector_gazebo_ros_gps.so">
+        <updateRate>10.0</updateRate>
+        <bodyName>base_link</bodyName>
+        <frameId>base_link</frameId>
+        <!-- <topicName>navsat/fix</topicName> -->
+        <!-- <velocityTopicName>navsat/vel</velocityTopicName> -->
+        <topicName>/ublox_node/fix</topicName>
+        <velocityTopicName>/ublox_node/fix_velocity</velocityTopicName>
+        <referenceLatitude>44.855006</referenceLatitude>
+        <referenceLongitude>-0.672803</referenceLongitude>
+        <referenceHeading>0</referenceHeading>
+        <referenceAltitude>0</referenceAltitude>
+        <drift>0.0001 0.0001 0.0001</drift>
+        <!-- <driftFrequency>0.01 0.01 0.01</driftFrequency> -->
+        <gaussianNoise>0.01 0.01 0.01</gaussianNoise>
+        <velocityDrift>0.0001 0.0001 0.0001</velocityDrift>
+        <!-- <velocityDriftFrequency>0.01 0.01 0.01</gaussvelocityDriftFrequencyianNoise> -->
+        <velocityGaussianNoise>0.001 0.001 0.001</velocityGaussianNoise>
+      </plugin>
+    </gazebo>
+  </xacro:if>
+
+</robot>

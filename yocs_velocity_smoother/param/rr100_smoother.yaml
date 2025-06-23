@@ -1,0 +1,18 @@
+# Mandatory parameters
+speed_lim_v: 0.6 # Linear velocity
+speed_lim_w: 1.0 # Angular velocity
+
+accel_lim_v: 3.0 # Linear acceleration
+accel_lim_w: 1.0 # Angular acceleration
+
+# Optional parameters
+frequency: 30.0
+decel_factor: 1.0 # Changes how fast the smoother decelerates velocities
+
+# Robot velocity feedback type:
+#  0 - none
+#  1 - odometry
+#  2 - end robot commands
+robot_feedback: 0 
+# Here we use "no feedback" because we just want smoothed 
+# velocities from our rr100_drive_amp package.

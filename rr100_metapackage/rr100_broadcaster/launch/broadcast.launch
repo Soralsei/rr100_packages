@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="robot_namespace" default="/" />
+    <node ns="$(arg robot_namespace)" name="odom_broadcaster" type="odom_broadcaster"
+        pkg="rr100_broadcaster">
+        <remap from="odom" to="rr100_steering_controller/odom"/>
+    </node>
+</launch>

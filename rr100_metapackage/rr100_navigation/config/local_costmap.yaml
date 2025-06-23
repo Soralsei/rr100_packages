@@ -1,0 +1,15 @@
+global_frame: odom
+rolling_window: True
+
+publish_frequency: 8.0
+update_frequency: 10.0
+
+width: 8.0
+height: 8.0
+resolution: 0.05
+
+plugins:
+  # - { name: static_layer, type: "costmap_2d::StaticLayer" }
+  # - { name: obstacles_layer,    type: "costmap_2d::ObstacleLayer" }
+  - { name: 3d_obstacle_layer,  type: "spatio_temporal_voxel_layer/SpatioTemporalVoxelLayer"}
+  # - { name: inflation_layer,    type: "costmap_2d::InflationLayer" }

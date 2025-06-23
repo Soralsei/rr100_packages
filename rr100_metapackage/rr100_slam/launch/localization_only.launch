@@ -1,0 +1,47 @@
+<launch>
+    <arg name="laserscan_topic" default="/rslidar_laserscan"
+        doc="The topic in which the LiDAR laserscan data is published" />
+    <arg name="pointcloud_topic" default="/rslidar_points"
+        doc="The topic in which the LiDAR pointcloud data is published" />
+
+    <arg name="simulated" default="false" doc="Whether the robot is simulated" />
+    <arg name="use_rviz" default="true" />
+
+    <param name="/use_sim_time" value="$(arg simulated)" />
+
+    <arg name="map_path" default="$(find rr100_slam)/maps/map" />
+    <arg name="map_resolution" default="0.1" doc="Map gridcell resolution" />
+
+    <arg name="use_pointcloud_to_laserscan_nodelet" default="false" />
+    <arg name="nodelet_manager" default="rslidar_nodelet_manager" doc="Nodelet manager name" />
+    <arg name="rslidar_laserscan_suffix" value="_nodelet"
+        if="$(arg use_pointcloud_to_laserscan_nodelet)" />
+    <arg name="rslidar_laserscan_suffix" value=""
+        unless="$(arg use_pointcloud_to_laserscan_nodelet)" />
+
+    <arg name="use_unofficial_node" default="true" />
+    <arg name="rslidar_laserscan_prefix" value="unofficial_"
+        if="$(arg use_unofficial_node)" />
+    <arg name="rslidar_laserscan_prefix" value=""
+        unless="$(arg use_unofficial_node)" />
+
+    <include
+        file="$(find rslidar_laserscan)/launch/$(arg rslidar_laserscan_prefix)rslidar_laserscan$(arg rslidar_laserscan_suffix).launch">
+        <arg name="nodelet_manager" value="$(arg nodelet_manager)"
+            if="$(arg use_pointcloud_to_laserscan_nodelet)" />
+        <arg name="laserscan_topic" value="$(arg laserscan_topic)" />
+        <arg name="pointcloud_topic" value="$(arg pointcloud_topic)" />
+    </include>
+
+    <node pkg="slam_toolbox" type="localization_slam_toolbox_node" name="slam_toolbox"
+        output="screen">
+        <rosparam command="load" file="$(find rr100_slam)/config/mapper_params_localization.yaml" />
+        <param name="map_file_name" value="$(arg map_path)" />
+        <param name="scan_topic" value="$(arg laserscan_topic)" />
+        <param name="resolution" value="$(arg map_resolution)" />
+    </node>
+
+    <node name="rviz" type="rviz" pkg="rviz"
+        args="-d $(find rr100_slam)/rviz/slam_toolbox_localization.rviz"
+        if="$(arg use_rviz)" />
+</launch>

@@ -1,0 +1,41 @@
+<package format="2">
+  <name>rr100_gazebo</name>
+  <version>0.0.1</version>
+  <description>Fixed rr100 Simulator bringup</description>
+
+  <license>TODO</license>
+  <maintainer email="kohiodef@gmail.com">Kohio Deflesselle</maintainer>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>roslaunch</build_depend>
+  <build_depend>roslint</build_depend>
+
+  <build_export_depend>roslaunch</build_export_depend>
+  <build_export_depend>roslint</build_export_depend>
+
+  <exec_depend>urdf_geometry_parser</exec_depend>
+  <exec_depend>interactive_marker_twist_server</exec_depend>
+  <exec_depend>twist_mux</exec_depend>
+  <exec_depend>roslaunch</exec_depend>
+  <exec_depend>roslint</exec_depend>
+  <exec_depend>controller_manager</exec_depend>
+  <exec_depend>gazebo_plugins</exec_depend>
+  <exec_depend>gazebo_ros</exec_depend>
+  <exec_depend>gazebo_ros_control</exec_depend>
+  <exec_depend>realsense_gazebo_plugin</exec_depend>
+  <exec_depend>hector_gazebo_plugins</exec_depend>
+  <exec_depend>rr100_control</exec_depend>
+  <exec_depend>rr100_description</exec_depend>
+  <exec_depend>joint_state_controller</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <!-- <exec_depend>multimaster_launch</exec_depend> -->
+  <exec_depend>pointcloud_to_laserscan</exec_depend>
+  <exec_depend>rostopic</exec_depend>
+
+  <export>
+    <!-- <gr_date>11/04/2023
+    14:12:45</gr_date><gr_branch>master</gr_branch><gr_commit>62edc5d206e484665478a2ed215ed8d19449ff54</gr_commit><gr_url>git@gitlabholder.generation-robots.com:OMBRE/ROBOTS/rr100/rr100_sim.git</gr_url> -->
+  </export>
+
+</package>

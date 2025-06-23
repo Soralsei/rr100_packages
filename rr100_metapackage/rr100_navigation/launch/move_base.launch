@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="use_static_map" default="true" />
+    <arg name="global_costmap_width" default="100.0"
+        doc="Global costmap width (in meters) if no static map is specified" />
+    <arg name="global_costmap_height" default="100.0"
+        doc="Global costmap height (in meters) if no static map is specified" />
+
+    <arg name="odom_topic" default="odom" doc="Odometry topic name" />
+    <arg name="scan_topic" default="laserscan" doc="LaserScan topic name" />
+    <arg name="cmd_vel_topic" default="cmd_vel" doc="Velocity command topic name" />
+
+    <!-- <arg name="cam_point_cloud_enabled" default="true"
+        doc="Use the Realsense D435i point cloud for costmap updates" />
+    <arg name="cam_point_cloud_topic" default="/camera/depth/color/points"
+        doc="The realsense point cloud topic" /> -->
+
+    <node name="move_base_rr100" type="move_base" pkg="move_base" output="screen">
+        <rosparam file="$(find rr100_navigation)/config/local_planner.yaml" command="load" />
+        <rosparam file="$(find rr100_navigation)/config/global_planner.yaml" command="load"/>
+
+        <!-- observation sources located in costmap_common.yaml -->
+        <rosparam file="$(find rr100_navigation)/config/costmap_common.yaml" command="load"
+            ns="global_costmap" />
+        <rosparam file="$(find rr100_navigation)/config/costmap_common.yaml" command="load"
+            ns="local_costmap" />
+
+        <!-- local costmap, needs size -->
+        <rosparam file="$(find rr100_navigation)/config/local_costmap.yaml" command="load"
+            ns="local_costmap" />
+        <!-- <param name="local_costmap/width" value="10.0" />
+        <param name="local_costmap/height" value="10.0" /> -->
+
+        <!-- static global costmap, static map provides size -->
+        <rosparam file="$(find rr100_navigation)/config/global_costmap_static.yaml" command="load"
+            ns="global_costmap" if="$(arg use_static_map)" />
+
+        <rosparam file="$(find rr100_navigation)/config/global_costmap_slam.yaml" command="load"
+            ns="global_costmap" unless="$(arg use_static_map)" />
+            
+        <param name="global_costmap/width" value="$(arg global_costmap_width)"
+            unless="$(arg use_static_map)" />
+        <param name="global_costmap/height" value="$(arg global_costmap_height)"
+            unless="$(arg use_static_map)" />
+
+        <!-- <param name="local_costmap/voxel_layer/observation_sources" value="lidar_points"
+            unless="$(arg cam_point_cloud_enabled)" /> -->
+
+        <param name="base_global_planner" value="global_planner/GlobalPlanner" />
+        <param name="base_local_planner" value="teb_local_planner/TebLocalPlannerROS" />
+
+        <!-- <param name="planner_frequency" value="1.0" /> -->
+        
+        <remap from="odom" to="$(arg odom_topic)" />
+        <remap from="scan" to="$(arg scan_topic)" />
+        <remap from="cmd_vel" to="$(arg cmd_vel_topic)" />
+        <!-- <remap from="depth/points" to="$(arg cam_point_cloud_topic)" /> -->
+    </node>
+</launch>

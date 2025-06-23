@@ -1,0 +1,14 @@
+# Goal
+geometry_msgs/PointStamped goal
+---
+# Result
+geometry_msgs/PoseStamped final_pose
+uint8 status
+
+uint8 SUCCEEDED = 0
+uint8 FAILED = 1
+uint8 OOREACH = 1
+---
+# Feedback
+geometry_msgs/PoseStamped current_pose
+geometry_msgs/Twist latest_action

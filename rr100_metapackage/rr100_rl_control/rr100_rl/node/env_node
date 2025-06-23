@@ -1,0 +1,29 @@
+#! /usr/bin/env python
+from geometry_msgs.msg import PoseStamped
+from rr100_rl.controller.rl_controller import RLController
+from rr100_rl.env import Environment
+import rospy
+
+
+from sbx import CrossQ
+
+
+if __name__ == "__main__":
+  rospy.init_node("env_node")
+  
+  env = Environment(11, "odom", "base_footprint", "front_left_wheel", "front_left_steering_joint", "/odometry/filtered", "/joint_states")
+  goal = PoseStamped()
+  goal.header.frame_id = "odom"
+  goal.pose.position.x = 1.5
+  goal.pose.position.y = 1.5
+  g = env.get_goal(goal) # type: ignore
+  while g is None:
+    g = env.get_goal(goal) # type: ignore
+  print(f"Got goal {g} in robot frame")
+  obs = None
+  while obs is None:
+    obs = env.get_observation()
+  print(f"Observation : {obs}")
+  input("Make the robot move then press enter to continue...")
+  print(f"New observation : {env.get_observation()}")
+  

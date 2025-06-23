@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>rr100_navigation</name>
+  <version>0.0.0</version>
+  <description>The rr100_navigation package</description>
+
+  <!-- One maintainer tag required, multiple allowed, one person per tag -->
+  <!-- Example:  -->
+  <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
+  <maintainer email="kohiodef@gmail.com">Kohio DEFLESSELLE</maintainer>
+
+
+  <!-- One license tag required, multiple allowed, one license per tag -->
+  <!-- Commonly used license strings: -->
+  <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
+  <license>TODO</license>
+
+
+  <!-- Url tags are optional, but multiple are allowed, one per tag -->
+  <!-- Optional attribute type can be: website, bugtracker, or repository -->
+  <!-- Example: -->
+  <!-- <url type="website">http://wiki.ros.org/rr100_navigation</url> -->
+
+
+  <!-- Author tags are optional, multiple are allowed, one per tag -->
+  <!-- Authors do not have to be maintainers, but could be -->
+  <!-- Example: -->
+  <!-- <author email="jane.doe@example.com">Jane Doe</author> -->
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <!-- <build_depend>move_base</build_depend>
+  <build_depend>rr100_slam</build_depend>
+  <build_export_depend>move_base</build_export_depend>
+  <build_export_depend>rr100_slam</build_export_depend> -->
+  <exec_depend>move_base</exec_depend>
+  <exec_depend>spatio_temporal_voxel_layer</exec_depend>
+  <exec_depend>rr100_slam</exec_depend>
+  <exec_depend>teb_local_planner</exec_depend>
+  <exec_depend>costmap_converter</exec_depend>
+  <exec_depend>global_planner</exec_depend>
+  <exec_depend>map_server</exec_depend>
+
+
+  <!-- The export tag contains other, unspecified, tags -->
+  <export>
+    <!-- Other tools can request additional information be placed here -->
+
+  </export>
+</package>

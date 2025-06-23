@@ -1,0 +1,29 @@
+<package format="2">
+  <name>rr100_description</name>
+  <version>0.0.1</version>
+  <description>rr100 URDF description</description>
+
+  <license>Copyright (c) 2019, Generation Robots.</license>
+
+  <maintainer email="grlab@generationrobots.com">Support GR</maintainer>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>roslaunch</build_depend>
+  <build_depend>roslint</build_depend>
+
+  <build_export_depend>roslaunch</build_export_depend>
+  <build_export_depend>roslint</build_export_depend>
+
+  <exec_depend>roslaunch</exec_depend>
+  <exec_depend>roslint</exec_depend>
+  <exec_depend>urdf</exec_depend>
+  <exec_depend>xacro</exec_depend>
+
+  <export>
+    <!-- <gr_date>11/04/2023 14:15:03</gr_date>
+    <gr_branch>master</gr_branch>
+    <gr_commit>96914b1376ff2c75b49a5e95e42a62461568510c</gr_commit>
+    <gr_url>git@gitlabholder.generation-robots.com:OMBRE/ROBOTS/rr100/rr100.git</gr_url> -->
+  </export>
+</package>

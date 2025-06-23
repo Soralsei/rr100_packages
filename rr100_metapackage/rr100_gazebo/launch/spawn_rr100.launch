@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="x" default="0.0" />
+  <arg name="y" default="0.0" />
+  <arg name="z" default="0.0" />
+  <arg name="yaw" default="0.0" />
+
+  <arg name="realsense_enabled" default="false" />
+  <arg name="gps_enabled" default="false" />
+  <arg name="rslidar_enabled" default="false" />
+  <arg name="realsense_laserscan" default="false" doc="Convert realsense point cloud to laser scan" />
+
+  <!-- For single master bringup, run robot control on the gazebo master -->
+  <include file="$(find rr100_description)/launch/description.launch">
+    <arg name="rslidar_enabled" value="$(arg rslidar_enabled)" />
+    <arg name="realsense_enabled" value="$(arg realsense_enabled)" />
+    <arg name="gps_enabled" value="$(arg gps_enabled)" />
+  </include>
+
+  <include file="$(find rr100_control)/launch/control.launch" />
+
+  <group if="$(eval arg('realsense_enabled') and arg('realsense_laserscan'))">
+    <!-- Include poincloud_to_laserscan if simulated realsense is attached -->
+    <node pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node"
+      name="realsense_to_laserscan" output="screen">
+      <remap from="cloud_in" to="camera/depth/points" />
+      <remap from="scan" to="scan/realsense" />
+      <rosparam command="load" file="$(find rr100_gazebo)/config/pc_to_ls.yaml" />
+    </node>
+  </group>
+
+  <!-- Spawn robot in gazebo -->
+  <node name="spawn_rr100_model" pkg="gazebo_ros" type="spawn_model"
+    args="-x $(arg x)
+          -y $(arg y)
+          -z $(arg z)
+          -Y $(arg yaw)
+          -unpause
+          -urdf
+          -param robot_description
+          -model rr100" />
+
+</launch>
