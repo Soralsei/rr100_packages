@@ -82,9 +82,9 @@
   
   <exec_depend>rr100_rl_msgs</exec_depend>
 
-  <exec_depend>python-numpy</exec_depend>
+  <!-- <exec_depend>python-numpy</exec_depend>
   <exec_depend>python-gymnasium-pip</exec_depend>
-  <exec_depend>python-stable-baselines3-pip</exec_depend>
+  <exec_depend>python-stable-baselines3-pip</exec_depend> -->
 
 
   <!-- The export tag contains other, unspecified, tags -->
