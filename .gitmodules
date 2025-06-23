@@ -4,18 +4,22 @@
 [submodule "realsense-ros"]
 	path = realsense-ros
 	url = https://github.com/Soralsei/realsense-ros.git
+	branch = rr100
 [submodule "realsense_gazebo_plugin"]
 	path = realsense_gazebo_plugin
 	url = https://github.com/Soralsei/realsense_gazebo_plugin.git
+	branch = noetic-devel
 [submodule "robosense_simulator"]
 	path = robosense_simulator
 	url = https://github.com/tomlogan501/robosense_simulator.git
 [submodule "slam_toolbox"]
 	path = slam_toolbox
 	url = https://github.com/Soralsei/slam_toolbox.git
+	branch = noetic-devel
 [submodule "teb_local_planner"]
 	path = teb_local_planner
 	url = https://github.com/Soralsei/teb_local_planner.git
+	branch = noetic-devel
 [submodule "gazebo_models_worlds_collection"]
 	path = gazebo_models_worlds_collection
 	url = https://github.com/leonhartyao/gazebo_models_worlds_collection.git
