@@ -53,7 +53,7 @@ class RLControllerBridge:
         rospy.loginfo("Starting ActionServer")
         self.action_server.start()
 
-        self.debug = True
+        self.debug = False
         if self.debug:
             self.gazebo_pause_srv = rospy.ServiceProxy("/gazebo/pause_physics", Empty)
             self.gazebo_unpause_srv = rospy.ServiceProxy("/gazebo/unpause_physics", Empty)

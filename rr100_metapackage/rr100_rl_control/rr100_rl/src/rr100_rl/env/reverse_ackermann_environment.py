@@ -11,18 +11,19 @@ from rr100_rl.env.environment import Environment
 class ReverseAckermannEnvironment(Environment):
     def __init__(
         self,
-        num_observation: np.int,
-        global_frame: np.str,
-        base_frame: np.str,
-        wheel_joint_names: np.str,
-        steering_joint_names: np.str,
-        odom_topic: np.str,
-        cmd_vel_topic: np.str,
-        joint_states_topic: np.str,
+        num_observation: int,
+        global_frame: str,
+        base_frame: str,
+        wheel_joint_names: str,
+        steering_joint_names: str,
+        odom_topic: str,
+        cmd_vel_topic: str,
+        joint_states_topic: str,
         max_velocity: Iterable[Any],
         max_acceleration: Iterable[Any],
-        max_xy_distance: np.float = 2,
-        action_frequency: np.int = 40,
+        max_xy_distance: float = 2,
+        action_frequency: int = 40,
+        distance_threshold: float = 0.10,
     ) -> None:
         super().__init__(
             num_observation,
@@ -37,6 +38,7 @@ class ReverseAckermannEnvironment(Environment):
             max_acceleration,
             max_xy_distance,
             action_frequency,
+            distance_threshold=distance_threshold,
         )
         self.wheel_radius = rospy.get_param(
             "/rr100_steering_controller/wheel_radius", 0.21
