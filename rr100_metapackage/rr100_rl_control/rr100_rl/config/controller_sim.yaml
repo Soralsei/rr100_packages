@@ -1,7 +1,7 @@
-max_xy_distance: 2.0
+max_xy_distance: 4.0
 max_goal_iter: 100
 odom_frame: "odom"
-odom_topic: "/odometry/filtered"
+odom_topic: "/rr100_steering_controller/odom"
 cmd_topic: "/cmd_vel"
 joint_states_topic: "/joint_states"
 wheel_joint_name: 

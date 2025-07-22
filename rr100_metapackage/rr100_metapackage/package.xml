@@ -58,6 +58,7 @@
   <exec_depend>rr100_navigation</exec_depend>
   <exec_depend>rr100_rl_control</exec_depend>
   <exec_depend>rr100_slam</exec_depend>
+  <exec_depend>rr100_trajectory_tracking</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

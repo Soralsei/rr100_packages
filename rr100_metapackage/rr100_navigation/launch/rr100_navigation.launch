@@ -31,6 +31,7 @@
     <arg name="simulated" default="false" doc="Whether the robot is simulated" />
     <arg name="use_rviz" default="true" />
 
+    <arg name="no_map" default="false" />
     <arg name="use_static_map" default="true" />
     <arg name="generate_map" default="true" />
     <arg name="map_resolution" default="0.05" doc="Map cell resolution" />
@@ -53,7 +54,7 @@
         <!-- <node name="map_server" type="map_server" pkg="map_server"
             args="$(arg pgm_map_path)" /> -->
 
-        <include file="$(find rr100_slam)/launch/localization_only.launch">
+        <include file="$(find rr100_slam)/launch/localization_only.launch" unless="$(arg no_map)" >
             <arg name="use_pointcloud_to_laserscan_nodelet"
                 value="$(arg use_pointcloud_nodelets)" />
             <arg name="nodelet_manager" value="$(arg nodelet_manager)" />
@@ -71,7 +72,7 @@
     </group>
 
     <group if="$(arg generate_map)">
-        <include file="$(find rr100_slam)/launch/slam_2d.launch">
+        <include file="$(find rr100_slam)/launch/slam_2d.launch" unless="$(arg no_map)" >
             <arg name="use_pointcloud_to_laserscan_nodelet"
                 value="$(arg use_pointcloud_nodelets)" />
             <arg name="nodelet_manager" value="$(arg nodelet_manager)" />
@@ -90,13 +91,13 @@
 
     <include file="$(find rr100_navigation)/launch/move_base.launch">
         <arg name="use_static_map" value="$(arg use_static_map)" />
+        <arg name="no_map" value="$(arg no_map)" />
 
         <arg name="cmd_vel_topic"
             value="$(arg cmd_vel_topic)" />
         <arg name="scan_topic" value="$(arg laserscan_topic)" />
-        <arg
-            name="odom_topic" value="/odometry/filtered" /> s <!-- <arg
-        name="cam_point_cloud_enabled" value="$(arg cam_point_cloud_enabled)" />
+        <arg name="odom_topic" value="/odometry/filtered" />
+        <!-- <arg name="cam_point_cloud_enabled" value="$(arg cam_point_cloud_enabled)" />
         <arg name="cam_point_cloud_topic" value="$(arg cam_point_cloud_topic)" /> -->
 
         <arg name="global_costmap_width"
@@ -105,14 +106,14 @@
             value="$(arg global_costmap_height)" />
     </include>
 
-    <include file="$(find rr100_drive_amp)/launch/drive_amp.launch">
+    <!-- <include file="$(find rr100_drive_amp)/launch/drive_amp.launch">
         <arg name="twist_in" value="$(arg cmd_vel_topic)" />
         <arg name="odom_in" value="/odometry/filtered" />
 
         <arg name="twist_out" value="corrected_cmd_vel" />
-    </include>
+    </include> -->
 
-    <node pkg="nodelet" type="nodelet" name="velocity_smoother_nodelet_manager" args="manager" />
+    <!-- <node pkg="nodelet" type="nodelet" name="velocity_smoother_nodelet_manager" args="manager" />
 
     <include file="$(find yocs_velocity_smoother)/launch/velocity_smoother.launch">
         <arg name="nodelet_manager_name" value="velocity_smoother_nodelet_manager" />
@@ -120,7 +121,7 @@
         <arg name="raw_cmd_vel_topic" value="corrected_cmd_vel" />
         <arg name="smooth_cmd_vel_topic" value="cmd_vel" />
         <arg name="odom_topic" value="/odometry/filtered" />
-    </include>
+    </include> -->
 
     <node name="rviz" type="rviz" pkg="rviz"
         args="-d $(find rr100_navigation)/rviz/rr100_navigation.rviz"
