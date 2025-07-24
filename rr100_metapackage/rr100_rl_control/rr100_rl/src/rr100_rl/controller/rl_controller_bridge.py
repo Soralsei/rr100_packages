@@ -53,7 +53,7 @@ class RLControllerBridge:
         rospy.loginfo("Starting ActionServer")
         self.action_server.start()
 
-        self.debug = False
+        self.debug = rospy.get_param("/use_sim_time", False)
         if self.debug:
             self.gazebo_pause_srv = rospy.ServiceProxy("/gazebo/pause_physics", Empty)
             self.gazebo_unpause_srv = rospy.ServiceProxy("/gazebo/unpause_physics", Empty)
@@ -99,7 +99,9 @@ class RLControllerBridge:
                 self.env.stop()
                 return
 
-            req = {"observation": obs.tolist(), "episode_start": None, "deterministic": False} # type: ignore
+            obs = self.env.get_observation()
+            
+            req = {"observation": obs.tolist(), "episode_start": None, "deterministic": True} # type: ignore
             # rospy.loginfo(f"Feed back : {feedback}")
             rospy.logdebug(f"Sending request {req}")
             t1 = time.monotonic()
@@ -114,7 +116,7 @@ class RLControllerBridge:
             elapsed = time.monotonic() - t1
             rospy.logdebug(f"REQ -> REP RTT : {elapsed * 1000.0 :.2f}ms")
             rospy.logdebug(f'Got action {response["action"]}') # type: ignore
-            obs, terminated, info = self.env.step(np.array(response["action"])) # type: ignore
+            terminated, info = self.env.step(np.array(response["action"])) # type: ignore
 
             last_info = info
             if terminated:

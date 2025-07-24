@@ -37,7 +37,7 @@ def prompt_goal():
     return goal
 
 if __name__ == "__main__":
-    rospy.init_node("rl_goal_sender")
+    rospy.init_node("classic_goal_sender")
     parser = argparse.ArgumentParser()
     parser.add_argument("--movement-controller-topic", "-t", default="/move_base")
     parser.add_argument("--distance-file", "-f", default="./distance_file.txt")
@@ -54,7 +54,7 @@ if __name__ == "__main__":
         try:
             quit = False
             while not quit:
-                user_input = input("Enter a command :\n- q/CTRL+D: Quit\n- goto: send a goal to the rl controller\n")
+                user_input = input("Enter a command :\n- q/CTRL+D: Quit\n- goto: send a goal to the move_base controller\n")
                 user_input = user_input.lower()
                 if user_input == "q":
                     quit = True
@@ -62,6 +62,7 @@ if __name__ == "__main__":
                 if user_input == "goto":
                     goal = prompt_goal()
                     point_stamped = PointStamped()
+                    point_stamped.header = goal.target_pose.header
                     point_stamped.point = Point(
                         goal.target_pose.pose.position.x,
                         goal.target_pose.pose.position.y,

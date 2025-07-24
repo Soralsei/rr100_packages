@@ -34,7 +34,7 @@ TebLocalPlannerROS:
   max_steering_rate: 1.0 # No idea what unit this is, rad/s² ?
 
   # ********************** Carlike robot parameters ********************
-  min_turning_radius: 0.60 # meters
+  min_turning_radius: 0.50 # meters
   wheelbase: 0.25 # Wheelbase of our robot in meters
   cmd_angle_instead_rotvel: False # stage simulator takes the angle instead of the rotvel as input (twist message)
   # ********************************************************************
@@ -56,7 +56,7 @@ TebLocalPlannerROS:
       ] # for type "polygon"
 
   # Goal Tolerance
-  xy_goal_tolerance: 0.1
+  xy_goal_tolerance: 0.15
   yaw_goal_tolerance: 0.175
   free_goal_vel: False
 

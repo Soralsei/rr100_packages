@@ -105,41 +105,26 @@ class Environment:
         if self.goal is None:
             return None
 
-        self.current_robot_tf = robot_tf
-
         wheel_radial, steering_angle, steering_rate = self.get_wheel_info()
-        # linear_velocity, angular_velocity = self.get_robot_velocity()
         robot_position = np.zeros(2)
-        twist = PyKDL.Twist()
+        vel = PyKDL.Vector()
         robot_yaw = 0
         if self.initial_robot_tf is not None:
             robot_tf = tf2_kdl.transform_to_kdl(robot_tf)
-            twist = PyKDL.Twist(
-                PyKDL.Vector(
-                    self.last_odom.twist.twist.linear.x,
-                    self.last_odom.twist.twist.linear.y,
-                    self.last_odom.twist.twist.linear.z,
-                ),
-                PyKDL.Vector(
-                    self.last_odom.twist.twist.angular.x,
-                    self.last_odom.twist.twist.angular.y,
-                    self.last_odom.twist.twist.angular.z,
-                ),
+            vel = PyKDL.Vector(
+                self.last_odom.twist.twist.linear.x,
+                self.last_odom.twist.twist.linear.y,
+                0,
             )
-            # print(twist)
             initial = tf2_kdl.transform_to_kdl(self.initial_robot_tf)
-            # rospy.loginfo(f"Current frame : \n{robot_tf}")
-            # rospy.loginfo(f"Initial frame : \n{initial}")
-            # rospy.loginfo(f"Initial frame : \n{initial.Inverse()}")
             initial_inv = initial.Inverse()
 
             robot_in_initial = initial_inv * robot_tf
             robot_position[0] = robot_in_initial.p.x()
             robot_position[1] = robot_in_initial.p.y()
 
-            twist = robot_tf.M * twist
-            # print(f"Transformed twist : {twist}")
-
+            vel = robot_in_initial.M * vel
+            
             robot_yaw = robot_in_initial.M.GetRPY()[2]
 
         self.relative_robot_position = robot_position.copy()
@@ -164,9 +149,9 @@ class Environment:
                 steering_angle,
                 steering_rate,
                 # [4e-5],
-                [twist.vel.x(), twist.vel.y()],
+                [vel.x(), vel.y()],
                 [robot_yaw],
-                [twist.rot.z()],
+                [self.last_odom.twist.twist.angular.z],
             )
         )  # type: ignore
 
@@ -197,7 +182,7 @@ class Environment:
 
     def lookup_robot_tf(self) -> Optional[TransformStamped]:
         self.current_robot_tf = self.lookup_transform(
-            self.base_frame, self.global_frame
+            source=self.base_frame, dest=self.global_frame
         )
         return self.current_robot_tf
 
@@ -214,10 +199,9 @@ class Environment:
     def step(self, action: np.ndarray):
         cmd = self.set_action(action)
         self.action_rate.sleep()
-        obs = self.get_observation()
         info = self._get_info(current_cmd=cmd)
         terminal = self._is_terminal()
-        return obs, terminal, info
+        return terminal, info
 
     def set_action(self, action):
         action_scaled = action * self.max_velocity
@@ -303,7 +287,7 @@ class Environment:
         if self.last_odom is None:
             return linear, angular
 
-        # rospy.loginfo(self.last_odom.twist)
+        # rospy.loginfo(self.last_odom.vel)
 
         linear = np.array(
             [self.last_odom.twist.twist.linear.x, self.last_odom.twist.twist.linear.y]

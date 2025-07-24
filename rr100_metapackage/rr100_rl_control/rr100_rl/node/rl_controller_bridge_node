@@ -9,7 +9,7 @@ from rr100_rl.controller import RLControllerBridge
 
 if __name__ == "__main__":
 
-    rospy.init_node("rl_controller_bridge", log_level=rospy.DEBUG)
+    rospy.init_node("rl_controller_bridge", log_level=rospy.INFO)
 
     max_xy_distance = rospy.get_param("~max_xy_distance", 2.0)
     action_frequency = rospy.get_param("~action_frequency", 40)
