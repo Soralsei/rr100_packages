@@ -53,7 +53,7 @@ class RLControllerBridge:
         rospy.loginfo("Starting ActionServer")
         self.action_server.start()
 
-        self.debug = rospy.get_param("/use_sim_time", False)
+        self.debug = rospy.get_param("/use_sim_time", False) and False
         if self.debug:
             self.gazebo_pause_srv = rospy.ServiceProxy("/gazebo/pause_physics", Empty)
             self.gazebo_unpause_srv = rospy.ServiceProxy("/gazebo/unpause_physics", Empty)
@@ -135,10 +135,10 @@ class RLControllerBridge:
                 input("Press enter to continue...")
 
         self.env.stop()
+        result.final_pose = self.env.robot_pose
         if success:
             rospy.loginfo(f"Target reached ! ({last_info['distance']} m)")
             rospy.loginfo(f"Final relative position: {last_info['robot_relative_pos']} | relative orientation: {last_info['robot_relative_rot']} rad")
-            result.final_pose = self.env.robot_pose
             result.status = GoToPoseResult.SUCCEEDED
         else:
             rospy.loginfo(f"Target not reached ! ({last_info['distance']}m)")

@@ -176,7 +176,7 @@ class Environment:
             rospy.logwarn(
                 f">>> Goal ({goal.point.x:.3f}, {goal.point.y:.3f}) is too far away (limit is {self.max_xy_distance, self.max_xy_distance})"
             )
-            return None
+            # return None # Temporarily disabled to allow long distance navigation
 
         return self.goal
 
@@ -315,6 +315,7 @@ class Environment:
         pose.pose.position.x = self.current_robot_tf.transform.translation.x
         pose.pose.position.y = self.current_robot_tf.transform.translation.y
         pose.pose.position.z = 0.0
+        pose.pose.orientation = self.current_robot_tf.transform.rotation
 
         return pose
 

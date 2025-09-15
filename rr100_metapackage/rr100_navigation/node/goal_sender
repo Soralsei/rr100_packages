@@ -70,7 +70,7 @@ if __name__ == "__main__":
                     )
                     
                     tracker = MoveBaseTracker(point_stamped, f, tf_buffer)
-                    client.send_goal(goal, feedback_cb=tracker.feedback_cb, done_cb=tracker.done_cb)
+                    client.send_goal(goal, feedback_cb=tracker._feedback_cb, done_cb=tracker._done_cb)
                     client.wait_for_result()
                 else:
                     print("Unknown command")
