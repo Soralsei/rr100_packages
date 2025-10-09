@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="chassis">
+    
+    <xacro:property name="lidar_cone_height" value="0.144"/>
+
+    <xacro:macro name="lidar_assembly" params="*origin lidar_name:=lidar parent:=base_link rslidar_name:=robosense rslidar_topic:=/robosense_points hz:=20 samples:=900 gpu:=false">
+
+        <link name="${lidar_name}_base_link">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 ${-M_PI/2} 0" />
+                <material name="grey"/>
+                <geometry>
+                    <mesh filename="package://rr100_description/meshes/lidar_cone.dae" scale="1 1 1" />
+                </geometry>
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 ${-M_PI/2} 0" />
+                <geometry>
+                    <mesh filename="package://rr100_description/meshes/lidar_cone.dae" scale="1 1 1" />
+                </geometry>          
+            </collision>
+        </link>
+
+        <joint name="${lidar_name}_base_mount_joint" type="fixed">
+            <xacro:insert_block name="origin" />
+            <parent link="${parent}"/>
+            <child link="${lidar_name}_base_link"/>
+        </joint>
+
+        <xacro:include filename="$(find robosense_description)/urdf/RS-16.urdf.xacro"/>
+        <xacro:RS-16 parent="${lidar_name}_base_link" name="${rslidar_name}" topic="${rslidar_topic}" hz="${hz}" samples="${samples}" gpu="${gpu}">
+            <origin xyz="0 0 ${lidar_cone_height}" rpy="0.0 0.0 0.0" />
+        </xacro:RS-16>
+
+    </xacro:macro>
+
+</robot>
