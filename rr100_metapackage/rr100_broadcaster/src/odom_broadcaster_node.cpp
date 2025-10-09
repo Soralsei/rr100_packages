@@ -10,7 +10,7 @@ void odomCallback(const nav_msgs::Odometry::ConstPtr &odom)
 
     transform.header.stamp = ros::Time::now();
     transform.header.frame_id = odom->header.frame_id;
-    transform.child_frame_id = odom->child_frame_id;
+    transform.child_frame_id = "base_footprint";
 
     transform.transform.translation.x = odom->pose.pose.position.x;
     transform.transform.translation.y = odom->pose.pose.position.y;

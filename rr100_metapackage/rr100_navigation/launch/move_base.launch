@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <launch>
     <arg name="use_static_map" default="true" />
+    <arg name="no_map" default="false" />
     <arg name="global_costmap_width" default="100.0"
         doc="Global costmap width (in meters) if no static map is specified" />
     <arg name="global_costmap_height" default="100.0"
@@ -9,6 +10,11 @@
     <arg name="odom_topic" default="odom" doc="Odometry topic name" />
     <arg name="scan_topic" default="laserscan" doc="LaserScan topic name" />
     <arg name="cmd_vel_topic" default="cmd_vel" doc="Velocity command topic name" />
+
+    
+    <arg name="global_planner_config" value="$(find rr100_navigation)/config/global_costmap_nomap.yaml" if="$(arg no_map)"/>
+    <arg name="global_planner_config" value="$(find rr100_navigation)/config/global_costmap_static.yaml" if="$(eval not arg('no_map') and arg('use_static_map'))"/>
+    <arg name="global_planner_config" value="$(find rr100_navigation)/config/global_costmap_slam.yaml" if="$(eval not arg('no_map') and not arg('use_static_map'))"/>
 
     <!-- <arg name="cam_point_cloud_enabled" default="true"
         doc="Use the Realsense D435i point cloud for costmap updates" />
@@ -32,11 +38,7 @@
         <param name="local_costmap/height" value="10.0" /> -->
 
         <!-- static global costmap, static map provides size -->
-        <rosparam file="$(find rr100_navigation)/config/global_costmap_static.yaml" command="load"
-            ns="global_costmap" if="$(arg use_static_map)" />
-
-        <rosparam file="$(find rr100_navigation)/config/global_costmap_slam.yaml" command="load"
-            ns="global_costmap" unless="$(arg use_static_map)" />
+        <rosparam file="$(arg global_planner_config)" command="load" ns="global_costmap" />
             
         <param name="global_costmap/width" value="$(arg global_costmap_width)"
             unless="$(arg use_static_map)" />

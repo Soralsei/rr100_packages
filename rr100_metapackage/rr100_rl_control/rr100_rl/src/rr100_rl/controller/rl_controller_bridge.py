@@ -10,7 +10,7 @@ from visualization_msgs.msg import Marker
 from rr100_rl.env.environment import Environment
 from rr100_rl_msgs.msg import GoToPoseAction
 from rr100_rl_msgs.msg import GoToPoseGoal, GoToPoseResult, GoToPoseFeedback
-from geometry_msgs.msg import PoseStamped, PointStamped
+from geometry_msgs.msg import PoseStamped, PointStamped, Twist
 
 
 class RLControllerBridge:
@@ -25,13 +25,11 @@ class RLControllerBridge:
         env: Environment,
         goal_marker_topic: str = "rl_controller/goal_marker",
         action_server_name: str = "rl_controller",
-        distance_threshold: float = 0.10,
         goal_max_iter: int = 500,
     ) -> None:
         self.env: Environment = env
         self.action_name = action_server_name
 
-        self.distance_threshold = distance_threshold
         self.goal_max_iter = goal_max_iter
 
         self.action_server = SimpleActionServer(
@@ -55,7 +53,7 @@ class RLControllerBridge:
         rospy.loginfo("Starting ActionServer")
         self.action_server.start()
 
-        self.debug = False
+        self.debug = rospy.get_param("/use_sim_time", False) and False
         if self.debug:
             self.gazebo_pause_srv = rospy.ServiceProxy("/gazebo/pause_physics", Empty)
             self.gazebo_unpause_srv = rospy.ServiceProxy("/gazebo/unpause_physics", Empty)
@@ -80,36 +78,30 @@ class RLControllerBridge:
             return
         rospy.loginfo(f"Got goal {goal.goal.point.x, goal.goal.point.y} in frame '{goal.goal.header.frame_id}'")
         self.publish_goal_marker(goal.goal)
+        feedback = GoToPoseFeedback()
+        feedback.current_pose = self.env.robot_pose
+        self.action_server.publish_feedback(feedback=feedback)
 
         rospy.logdebug(f"First observation : {obs}")
 
         result = GoToPoseResult()
         result.status = GoToPoseResult.FAILED
+        success = False
+        last_info = {}
 
-        for i in range(self.goal_max_iter):
+        for _ in range(self.goal_max_iter):
             if self.debug:
                 self.gazebo_unpause_srv.call()
 
-            feedback = GoToPoseFeedback()
-            feedback.current_pose = self.env.robot_pose
-            self.action_server.publish_feedback(feedback=feedback)
             if self.action_server.is_preempt_requested():
                 rospy.loginfo(f"{self.action_name} : Prempted")
                 self.action_server.set_preempted()
                 self.env.stop()
                 return
-            
-            d = self.env.distance_to_goal
-            rospy.logdebug(f"Current distance to goal : {d}")
-            if d < self.distance_threshold:
-                rospy.loginfo(f"Target reached ! ({d})")
-                result.final_pose = self.env.robot_pose
-                result.status = GoToPoseResult.SUCCEEDED
-                self.action_server.set_succeeded(result=result)
-                self.env.stop()
-                return
 
-            req = {"observation": obs.tolist(), "episode_start": None, "deterministic": False} # type: ignore
+            obs = self.env.get_observation()
+            
+            req = {"observation": obs.tolist(), "episode_start": None, "deterministic": True} # type: ignore
             # rospy.loginfo(f"Feed back : {feedback}")
             rospy.logdebug(f"Sending request {req}")
             t1 = time.monotonic()
@@ -124,20 +116,32 @@ class RLControllerBridge:
             elapsed = time.monotonic() - t1
             rospy.logdebug(f"REQ -> REP RTT : {elapsed * 1000.0 :.2f}ms")
             rospy.logdebug(f'Got action {response["action"]}') # type: ignore
-            obs = self.env.step(np.array(response["action"])) # type: ignore
+            terminated, info = self.env.step(np.array(response["action"])) # type: ignore
+
+            last_info = info
+            if terminated:
+                success = True
+                break
+            
+            rospy.loginfo(f"New observation: {obs}")
+
+            feedback = GoToPoseFeedback()
+            feedback.current_pose = self.env.robot_pose
+            feedback.latest_action = info["current_cmd"]
+            self.action_server.publish_feedback(feedback=feedback)
             
             if self.debug:
                 self.gazebo_pause_srv.call()
                 input("Press enter to continue...")
 
         self.env.stop()
-        dist = self.env.distance_to_goal
-        if dist < self.distance_threshold:
-            rospy.loginfo(f"Target reached ! ({dist}m)")
-            result.final_pose = self.env.robot_pose
+        result.final_pose = self.env.robot_pose
+        if success:
+            rospy.loginfo(f"Target reached ! ({last_info['distance']} m)")
+            rospy.loginfo(f"Final relative position: {last_info['robot_relative_pos']} | relative orientation: {last_info['robot_relative_rot']} rad")
             result.status = GoToPoseResult.SUCCEEDED
         else:
-            rospy.loginfo(f"Target not reached ! ({d}m)")
+            rospy.loginfo(f"Target not reached ! ({last_info['distance']}m)")
 
         self.action_server.set_succeeded(result)
 

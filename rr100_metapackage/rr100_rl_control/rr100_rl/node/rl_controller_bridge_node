@@ -38,6 +38,7 @@ if __name__ == "__main__":
         limits = rospy.get_param("~wheel_limits", [np.pi, 0.347])   # rad/s, rad
         variation_limits = [2 * np.pi, np.pi / 6]                   # rad/s², rad/s
     
+    distance_threshold: float = rospy.get_param("distance_threshold", 0.15)  # type: ignore
     env_cls = ReverseAckermannEnvironment if is_rl_ackermann else Environment
     env = env_cls(  
         num_observation=11,                         # type: ignore
@@ -52,16 +53,15 @@ if __name__ == "__main__":
         max_acceleration=variation_limits,
         max_xy_distance=max_xy_distance,            # type: ignore
         action_frequency=action_frequency,          # type: ignore
+        distance_threshold=distance_threshold,      #type: ignore
     )
 
-    distance_threshold: float = rospy.get_param("distance_threshold", 0.15)  # type: ignore
     goal_max_iter: int = rospy.get_param("goal_max_iter", 500)  # type: ignore
 
     controller = RLControllerBridge(
         env,
         goal_marker_topic=goal_marker_topic, # type: ignore
         action_server_name=action_server,
-        distance_threshold=distance_threshold,
         goal_max_iter=goal_max_iter,
     )
 

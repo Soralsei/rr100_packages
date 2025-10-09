@@ -1,0 +1,80 @@
+#! /usr/bin/env python3
+
+from actionlib import SimpleActionClient
+from rr100_trajectory_tracking import MoveBaseTracker
+from move_base_msgs.msg import MoveBaseGoal, MoveBaseAction
+from geometry_msgs.msg import Quaternion, PointStamped, Point
+import rospy
+import argparse
+import tf2_ros
+from tf.transformations import quaternion_from_euler
+
+def prompt_float(prompt: str) -> float:
+    valid = False
+    
+    while not valid:
+        try:
+            value_str: str = input(prompt)
+            value: float = float(value_str)
+            valid = True
+        except ValueError as e:
+            print(f"Value entered is not a valid float: {e}")
+    return value
+
+def prompt_goal():
+    frame = input("Enter the frame of the goal: ")
+    x: float = prompt_float("Enter the X coordinate of the goal: ")
+    y: float = prompt_float("Enter the Y coordinate of the goal: ")
+    theta: float = prompt_float("Enter the Theta orientation of the goal: ")
+
+    goal = MoveBaseGoal()
+    goal.target_pose.header.frame_id = frame
+    goal.target_pose.pose.position.x = x
+    goal.target_pose.pose.position.y = y
+    orient = quaternion_from_euler(0, 0, theta)
+    goal.target_pose.pose.orientation = Quaternion(orient[0], orient[1], orient[2], orient[3])
+
+    return goal
+
+if __name__ == "__main__":
+    rospy.init_node("classic_goal_sender")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--movement-controller-topic", "-t", default="/move_base")
+    parser.add_argument("--distance-file", "-f", default="./distance_file.txt")
+    args = parser.parse_args()
+    
+    client = SimpleActionClient(args.movement_controller_topic, ActionSpec=MoveBaseAction)
+    rospy.loginfo(f"Waiting for client at '{args.movement_controller_topic}'")
+    client.wait_for_server()
+
+    tf_buffer = tf2_ros.Buffer()
+    tf_listener = tf2_ros.TransformListener(tf_buffer)
+
+    with open(args.distance_file, "+a") as f:
+        try:
+            quit = False
+            while not quit:
+                user_input = input("Enter a command :\n- q/CTRL+D: Quit\n- goto: send a goal to the move_base controller\n")
+                user_input = user_input.lower()
+                if user_input == "q":
+                    quit = True
+                    continue
+                if user_input == "goto":
+                    goal = prompt_goal()
+                    point_stamped = PointStamped()
+                    point_stamped.header = goal.target_pose.header
+                    point_stamped.point = Point(
+                        goal.target_pose.pose.position.x,
+                        goal.target_pose.pose.position.y,
+                        goal.target_pose.pose.position.z
+                    )
+                    
+                    tracker = MoveBaseTracker(point_stamped, f, tf_buffer)
+                    client.send_goal(goal, feedback_cb=tracker._feedback_cb, done_cb=tracker._done_cb)
+                    client.wait_for_result()
+                else:
+                    print("Unknown command")
+                    continue
+        except EOFError as e:
+            rospy.signal_shutdown("User pressed CRTL + D")
+    print("Exiting...")

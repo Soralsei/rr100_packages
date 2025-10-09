@@ -1,0 +1,68 @@
+#! /usr/bin/env python3
+
+from actionlib import SimpleActionClient
+from rr100_trajectory_tracking import MoveBaseTracker
+from move_base_msgs.msg import MoveBaseGoal, MoveBaseAction
+from geometry_msgs.msg import Quaternion, PointStamped, Point
+import rospy
+import argparse
+import tf2_ros
+from tf.transformations import quaternion_from_euler
+
+
+def read_goals_from_csv(file_path: str):
+    import csv
+    goals = []
+    with open(file_path, "r") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            if row["comment"].lower().strip() == "hs + crossq":
+                goals.append({
+                    "frame": row["goal_frame"],
+                    "x": float(row["goal_x"]),
+                    "y": float(row["goal_y"]),
+                    "theta": float(row["final_theta"])
+                })
+    return goals
+
+if __name__ == "__main__":
+    rospy.init_node("classic_goal_sender")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--movement-controller-topic", "-t", default="/move_base")
+    parser.add_argument("--distance-file", "-f", default="./random_goals.csv")
+    parser.add_argument("--sequence-file", "-s", default="./random_goals.csv")
+    parser.add_argument("--comment", "-c", default="Baseline (TEB)")
+    args = parser.parse_args()
+    
+    client = SimpleActionClient(args.movement_controller_topic, ActionSpec=MoveBaseAction)
+    rospy.loginfo(f"Waiting for client at '{args.movement_controller_topic}'")
+    client.wait_for_server()
+
+    tf_buffer = tf2_ros.Buffer()
+    tf_listener = tf2_ros.TransformListener(tf_buffer)
+
+    goals = read_goals_from_csv(args.sequence_file)
+    with open(args.distance_file, "+a") as f:
+        i = 0 
+        for goal_dict in goals:
+            if i == 12:
+                input("Press enter to continue...")
+            goal = MoveBaseGoal()
+            goal.target_pose.header.frame_id = goal_dict["frame"]
+            goal.target_pose.pose.position.x = goal_dict["x"]
+            goal.target_pose.pose.position.y = goal_dict["y"]
+            orient = quaternion_from_euler(0, 0, goal_dict["theta"])
+            print(orient)
+            goal.target_pose.pose.orientation = Quaternion(orient[0], orient[1], orient[2], orient[3])
+            point_stamped = PointStamped()
+            point_stamped.header = goal.target_pose.header
+            point_stamped.point = Point(
+                goal.target_pose.pose.position.x,
+                goal.target_pose.pose.position.y,
+                goal.target_pose.pose.position.z
+            )
+            print(f"Sending goal: ({goal_dict['x']:.2f}, {goal_dict['y']:.2f}, {goal_dict['theta']:.2f}) in frame '{goal_dict['frame']}'")
+            tracker = MoveBaseTracker(point_stamped, f, tf_buffer, comment=args.comment)
+            client.send_goal(goal, feedback_cb=tracker._feedback_cb, done_cb=tracker._done_cb)
+            client.wait_for_result()
+            i += 1
