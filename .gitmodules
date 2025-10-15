@@ -23,6 +23,3 @@
 [submodule "gazebo_models_worlds_collection"]
 	path = gazebo_models_worlds_collection
 	url = https://github.com/leonhartyao/gazebo_models_worlds_collection.git
-[submodule "ros_motion_planning"]
-	path = ros_motion_planning
-	url = https://github.com/ai-winter/ros_motion_planning.git
