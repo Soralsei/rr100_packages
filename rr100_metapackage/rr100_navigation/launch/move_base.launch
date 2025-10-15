@@ -9,6 +9,7 @@
 
     <arg name="odom_topic" default="odom" doc="Odometry topic name" />
     <arg name="scan_topic" default="laserscan" doc="LaserScan topic name" />
+    <arg name="pointcloud_topic" default="laserscan" doc="Point cloud topic name" />
     <arg name="cmd_vel_topic" default="cmd_vel" doc="Velocity command topic name" />
 
     
@@ -27,9 +28,9 @@
 
         <!-- observation sources located in costmap_common.yaml -->
         <rosparam file="$(find rr100_navigation)/config/costmap_common.yaml" command="load"
-            ns="global_costmap" />
+            ns="global_costmap" subst_value="true"/>
         <rosparam file="$(find rr100_navigation)/config/costmap_common.yaml" command="load"
-            ns="local_costmap" />
+            ns="local_costmap" subst_value="true"/>
 
         <!-- local costmap, needs size -->
         <rosparam file="$(find rr100_navigation)/config/local_costmap.yaml" command="load"

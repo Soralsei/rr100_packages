@@ -37,7 +37,7 @@ obstacles_layer:
   observation_sources:      lidar_mark lidar_clear
   lidar_mark:
     data_type: PointCloud2
-    topic: rslidar_points
+    topic: $(arg pointcloud_topic)
     marking: true
     clearing: false
     min_obstacle_height: 0.15     # default 0, meters
@@ -51,7 +51,7 @@ obstacles_layer:
     model_type: 1                # default 0, model type for frustum. 0=depth camera, 1=3d lidar like VLP16 or similar
   lidar_clear:
     data_type: PointCloud2
-    topic: rslidar_points
+    topic: $(arg pointcloud_topic)
     marking: false
     clearing: true
     max_z: 7.0                  # default 0, meters
